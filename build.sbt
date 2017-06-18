@@ -7,7 +7,7 @@ version := "0.1-SNAPSHOT"
 
 organization := "org.example"
 
-scalaVersion in ThisBuild := "2.11.7"
+scalaVersion in ThisBuild := "2.11.8"
 
 val flinkVersion = "1.3.0"
 
@@ -23,7 +23,10 @@ lazy val root = (project in file(".")).
 mainClass in assembly := Some("org.example.Job")
 
 // make run command include the provided dependencies
-run in Compile <<= Defaults.runTask(fullClasspath in Compile, mainClass in (Compile, run), runner in (Compile, run))
+run in Compile := Defaults.runTask(fullClasspath in Compile,
+                                   mainClass in (Compile, run),
+                                   runner in (Compile,run)
+                                  ).evaluated
 
 // exclude Scala library from assembly
 assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
