@@ -1,5 +1,7 @@
-resolvers in ThisBuild ++= Seq("Apache Development Snapshot Repository" at "https://repository.apache.org/content/repositories/snapshots/",
-  Resolver.mavenLocal)
+ThisBuild / resolvers ++= Seq(
+  "Apache Development Snapshot Repository" at "https://repository.apache.org/content/repositories/snapshots/",
+  Resolver.mavenLocal
+)
 
 name := "Flink Project"
 
@@ -7,9 +9,9 @@ version := "0.1-SNAPSHOT"
 
 organization := "org.example"
 
-scalaVersion in ThisBuild := "2.11.8"
+ThisBuild / scalaVersion := "2.11.12"
 
-val flinkVersion = "1.3.2"
+val flinkVersion = "1.5.0"
 
 val flinkDependencies = Seq(
   "org.apache.flink" %% "flink-scala" % flinkVersion % "provided",
@@ -20,13 +22,17 @@ lazy val root = (project in file(".")).
     libraryDependencies ++= flinkDependencies
   )
 
-mainClass in assembly := Some("org.example.Job")
+assembly / mainClass := Some("org.example.Job")
 
 // make run command include the provided dependencies
-run in Compile := Defaults.runTask(fullClasspath in Compile,
-                                   mainClass in (Compile, run),
-                                   runner in (Compile,run)
-                                  ).evaluated
+Compile / run  := Defaults.runTask(Compile / fullClasspath,
+  Compile / run / mainClass,
+  Compile / run / runner
+).evaluated
+
+// stays inside the sbt console when we press "ctrl-c" while a Flink programme executes with "run" or "runMain"
+Compile / run / fork := true
+Global / cancelable := true
 
 // exclude Scala library from assembly
-assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
+assembly / assemblyOption  := (assembly / assemblyOption).value.copy(includeScala = false)
